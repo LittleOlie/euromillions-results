@@ -31,7 +31,7 @@ function showLastDraw(data) {
 function calculateProbabilities(data) {
     const numberCounts = {};
     const starCounts = {};
-    const totalDraws = data.length;
+    const totalDraws = data.length;  // Total number of draws
 
     // Count the occurrences of each number and star
     data.forEach(draw => {
@@ -44,11 +44,11 @@ function calculateProbabilities(data) {
     const sortedStars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]);
 
     // Prepare data for charts
-    const numberLabels = sortedNumbers.map(item => item[0]);
-    const numberFrequencies = sortedNumbers.map(item => (item[1] / totalDraws * 100).toFixed(2));
+    const numberLabels = sortedNumbers.map(item => `${item[0]} (${item[1]} draws)`); // Include draw count
+    const numberFrequencies = sortedNumbers.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
 
-    const starLabels = sortedStars.map(item => item[0]);
-    const starFrequencies = sortedStars.map(item => (item[1] / totalDraws * 100).toFixed(2));
+    const starLabels = sortedStars.map(item => `${item[0]} (${item[1]} draws)`); // Include draw count
+    const starFrequencies = sortedStars.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
 
     // Create charts
     createChart('numberChart', 'Number Frequencies (%)', numberLabels, numberFrequencies, false);
