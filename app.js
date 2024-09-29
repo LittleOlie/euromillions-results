@@ -5,6 +5,8 @@ async function fetchResults() {
             headers: { 'Accept': 'application/json' }
         });
         const data = await response.json();
+        // Store fetched data globally so we can use it in the lucky number check
+        window.pastResults = data;
 
 	       /// Display first date, last date, and total number of draws
         displayDrawInfo(data);
@@ -171,6 +173,39 @@ function generateLuckyPick(event) {
     // Display lucky numbers
     document.getElementById('luckyPick').textContent = `Lucky Numbers: ${luckyNumbers.join(', ')} | Lucky Stars: ${luckyStars.join(', ')}`;
 }
+
+
+
+
+////
+// Check if this set of numbers and stars appeared in past results
+    checkIfLuckySetAppeared(luckyNumbers, luckyStars);
+}
+
+// Function to check if the generated lucky set has appeared in any past results
+function checkIfLuckySetAppeared(luckyNumbers, luckyStars) {
+    const pastResults = window.pastResults || [];
+
+    // Check each past draw for a match with the generated lucky set
+    const hasAppeared = pastResults.some(draw => {
+        const numbersMatch = arraysEqual(luckyNumbers, draw.numbers);
+        const starsMatch = arraysEqual(luckyStars, draw.stars);
+        return numbersMatch && starsMatch;
+    });
+
+    // Display the result to the user
+    const resultMessage = hasAppeared
+        ? 'Congratulations! This set of numbers and stars has appeared in past draws.'
+        : 'This set of numbers and stars has never appeared in past draws.';
+    
+    document.getElementById('resultCheck').textContent = resultMessage;
+}
+
+/////
+
+
+
+
 
 // Add event listener to the form
 document.getElementById('birthdateForm').addEventListener('submit', generateLuckyPick);
