@@ -1,26 +1,34 @@
 // Fetching results from the API
 async function fetchResults() {
-    const response = await fetch('https://euromillions.api.pedromealha.dev/draws');
-    const data = await response.json();
-    const resultsList = document.getElementById('results');
+    try {
+        const response = await fetch('https://euromillions.api.pedromealha.dev/draws', {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        const data = await response.json();
+        const resultsList = document.getElementById('results');
 
-    // Display results with dates
-    data.slice(0, 10).forEach(draw => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `Draw on ${draw.date}: Numbers: ${draw.numbers.join(', ')} | Stars: ${draw.stars.join(', ')}`;
-        resultsList.appendChild(listItem);
-    });
+        // Display results with dates (limit to first 10 results)
+        data.slice(0, 10).forEach(draw => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `Draw on ${draw.date}: Numbers: ${draw.numbers.join(', ')} | Stars: ${draw.stars.join(', ')}`;
+            resultsList.appendChild(listItem);
+        });
 
-    // Processing number and star frequencies
-    const numberCounts = {};
-    const starCounts = {};
-    data.forEach(draw => {
-        draw.numbers.forEach(num => numberCounts[num] = (numberCounts[num] || 0) + 1);
-        draw.stars.forEach(star => starCounts[star] = (starCounts[star] || 0) + 1);
-    });
+        // Processing number and star frequencies
+        const numberCounts = {};
+        const starCounts = {};
+        data.forEach(draw => {
+            draw.numbers.forEach(num => numberCounts[num] = (numberCounts[num] || 0) + 1);
+            draw.stars.forEach(star => starCounts[star] = (starCounts[star] || 0) + 1);
+        });
 
-    // Displaying frequency in a graph
-    displayGraph(numberCounts, starCounts, data.length);
+        // Displaying frequency in a graph
+        displayGraph(numberCounts, starCounts, data.length);
+    } catch (error) {
+        console.error('Failed to fetch results:', error);
+    }
 }
 
 // Generate random numbers
@@ -35,7 +43,7 @@ function displayGraph(numberCounts, starCounts, totalDraws) {
     const ctx = document.getElementById('graph').getContext('2d');
 
     const data = {
-        labels: Object.keys(numberCounts).map(Number),
+        labels: Object.keys(numberCounts).map(Number), // List of numbers
         datasets: [
             {
                 label: 'Numbers Frequency (%)',
@@ -67,4 +75,4 @@ function displayGraph(numberCounts, starCounts, totalDraws) {
 }
 
 // Initialize by fetching results when the page loads
-fetchResults();
+document.addEventListener('DOMContentLoaded', fetchResults);
