@@ -6,6 +6,9 @@ async function fetchResults() {
         });
         const data = await response.json();
 
+	       /// Display first date, last date, and total number of draws
+        displayDrawInfo(data);
+
         // Show the last draw
         showLastDraw(data);
 
@@ -27,7 +30,26 @@ function showLastDraw(data) {
     lastDrawList.appendChild(listItem);
 }
 
-//
+
+
+
+/////
+
+// Function to display first date, last date, and total number of draws
+function displayDrawInfo(data) {
+    const totalDraws = data.length;  // Total number of draws
+
+    if (totalDraws > 0) {
+        const firstDrawDate = new Date(data[0].date).toLocaleDateString();
+        const lastDrawDate = new Date(data[totalDraws - 1].date).toLocaleDateString();
+
+        document.getElementById('drawInfo').textContent = 
+            `Total Draws: ${totalDraws}, First Draw: ${firstDrawDate}, Last Draw: ${lastDrawDate}`;
+    } else {
+        document.getElementById('drawInfo').textContent = 'No draw data available.';
+    }
+}
+//////////////////
 function calculateProbabilities(data) {
     const numberCounts = {};
     const starCounts = {};
@@ -66,7 +88,7 @@ function calculateProbabilities(data) {
 
 
 
-// Create the chart for numbers or stars
+///// Create the chart for numbers or stars
 function createChart(canvasId, label, labels, data, isStarChart = false) {
     const ctx = document.getElementById(canvasId).getContext('2d');
 
