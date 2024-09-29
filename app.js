@@ -27,6 +27,7 @@ function showLastDraw(data) {
     lastDrawList.appendChild(listItem);
 }
 
+//
 function calculateProbabilities(data) {
     const numberCounts = {};
     const starCounts = {};
@@ -52,7 +53,18 @@ function calculateProbabilities(data) {
     // Create charts
     createChart('numberChart', 'Number Frequencies (%)', numberLabels, numberFrequencies, false);
     createChart('starChart', 'Star Frequencies (%)', starLabels, starFrequencies, true);
+
+    // Get top and least numbers and stars
+    const topNumbers = sortedNumbers.slice(0, 5).map(item => item[0]);
+    const leastNumbers = sortedNumbers.slice(-5).map(item => item[0]);
+    const topStars = sortedStars.slice(0, 2).map(item => item[0]);
+    const leastStars = sortedStars.slice(-2).map(item => item[0]);
+
+    // Display the number sets
+    displayNumberSets(topNumbers, topStars, leastNumbers, leastStars);
 }
+
+
 
 // Create the chart for numbers or stars
 function createChart(canvasId, label, labels, data, isStarChart = false) {
@@ -100,6 +112,21 @@ function createChart(canvasId, label, labels, data, isStarChart = false) {
         }
     });
 }
+
+
+// display number set
+function displayNumberSets(topNumbers, topStars, leastNumbers, leastStars) {
+    // Display top numbers and stars
+    document.getElementById('topNumbers').textContent = `Top 5 Numbers: ${topNumbers.join(', ')}`;
+    document.getElementById('topStars').textContent = `Top 2 Stars: ${topStars.join(', ')}`;
+
+    // Display least numbers and stars
+    document.getElementById('leastNumbers').textContent = `Least 5 Numbers: ${leastNumbers.join(', ')}`;
+    document.getElementById('leastStars').textContent = `Least 2 Stars: ${leastStars.join(', ')}`;
+}
+
+
+
 
 // Generate lucky numbers based on user's birthdate
 function generateLuckyPick(event) {
