@@ -1,4 +1,3 @@
-// Fetching results from the API
 async function fetchResults() {
     try {
         const response = await fetch('https://euromillions.api.pedromealha.dev/draws', {
@@ -6,11 +5,15 @@ async function fetchResults() {
         });
         const data = await response.json();
 
+        // Filter draws to only show those that are today or earlier
+        const today = new Date();
+        const filteredData = data.filter(draw => new Date(draw.date) <= today);
+        
         // Show the last draw
-        showLastDraw(data);
+        showLastDraw(filteredData);
 
         // Calculate highest and least probability numbers and stars
-        calculateProbabilities(data);
+        calculateProbabilities(filteredData);
 
     } catch (error) {
         console.error('Failed to fetch results:', error);
@@ -19,7 +22,7 @@ async function fetchResults() {
 
 // Show the last draw results
 function showLastDraw(data) {
-    const lastDraw = data[0]; // Last draw is the first item in the array
+    const lastDraw = data[0]; // Last draw is the first item in the filtered array
     const lastDrawList = document.getElementById('lastDraw');
     
     const listItem = document.createElement('li');
@@ -46,13 +49,21 @@ function calculateProbabilities(data) {
     // Prepare data for charts
     const numberLabels = sortedNumbers.map(item => item[0]);
     const numberFrequencies = sortedNumbers.map(item => (item[1] / totalDraws * 100).toFixed(2));
+    const leastNumberLabels = sortedNumbers.slice(-5).map(item => item[0]);
+    const leastNumberFrequencies = sortedNumbers.slice(-5).map(item => (item[1] / totalDraws * 100).toFixed(2));
 
     const starLabels = sortedStars.map(item => item[0]);
     const starFrequencies = sortedStars.map(item => (item[1] / totalDraws * 100).toFixed(2));
+    const leastStarLabels = sortedStars.slice(-2).map(item => item[0]);
+    const leastStarFrequencies = sortedStars.slice(-2).map(item => (item[1] / totalDraws * 100).toFixed(2));
 
     // Create charts
-    createChart('numberChart', 'Number Frequencies (%)', numberLabels, numberFrequencies);
-    createChart('starChart', 'Star Frequencies (%)', starLabels, starFrequencies);
+    createChart('numberChart', 'Most Drawn Numbers (%)', numberLabels.slice(0, 5), numberFrequencies.slice(0, 5));
+    createChart('starChart', 'Most Drawn Stars (%)', starLabels.slice(0, 2), starFrequencies.slice(0, 2));
+
+    // Optionally create least drawn charts
+    createChart('leastNumberChart', 'Least Drawn Numbers (%)', leastNumberLabels, leastNumberFrequencies);
+    createChart('leastStarChart', 'Least Drawn Stars (%)', leastStarLabels, leastStarFrequencies);
 }
 
 // Create the chart for numbers or stars
