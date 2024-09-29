@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EuroMillions Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            text-align: center;
+        }
+        h1 {
+            color: #1e88e5;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            margin: 10px auto;
+            padding: 15px;
+            width: 80%;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #1e88e5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        #graph {
+            width: 80%;
+            margin: 20px auto;
+        }
+    </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+    <h1>EuroMillions Last Winning Numbers</h1>
+    <ul id="results"></ul>
+
+    <h2>Frequency of Numbers and Stars</h2>
+    <canvas id="
