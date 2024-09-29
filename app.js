@@ -65,15 +65,4 @@ function generateLuckyPick(event) {
     const year = birthdate.getFullYear(); // Get full year
 
     // Generate lucky numbers based on the birthdate
-    const luckyNumbers = [day % 50, month % 50, year % 50, (day + month) % 50, (day + year) % 50];
-    const luckyStars = [(day + month) % 12, (month + year) % 12];
-
-    // Display lucky numbers
-    document.getElementById('luckyPick').textContent = `Lucky Numbers: ${luckyNumbers.join(', ')} | Lucky Stars: ${luckyStars.join(', ')}`;
-}
-
-// Add event listener to the form
-document.getElementById('birthdateForm').addEventListener('submit', generateLuckyPick);
-
-// Initialize by fetching results when the page loads
-document.addEventListener('DOMContentLoaded', fetchResults);
+    const luckyNumbers = [day % 50, month % 50, year % 50, (
