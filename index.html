@@ -37,9 +37,12 @@
         button:hover, input[type="submit"]:hover {
             background-color: #1565c0;
         }
-        #graph {
+        #chartContainer {
             width: 80%;
             margin: 20px auto;
+        }
+        #lastDraw, #highProbability, #lowProbability, #luckyPick {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -49,8 +52,10 @@
     <ul id="lastDraw"></ul>
 
     <h2>Highest and Least Drawn Numbers</h2>
-    <p id="highProbability"></p>
-    <p id="lowProbability"></p>
+    <div id="chartContainer">
+        <canvas id="numberChart"></canvas>
+        <canvas id="starChart" style="margin-top: 20px;"></canvas>
+    </div>
 
     <h2>Enter Your Birthdate for a Lucky Pick</h2>
     <form id="birthdateForm">
