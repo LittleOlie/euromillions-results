@@ -10,8 +10,6 @@
             background-color: #f0f0f0;
             color: #333;
             text-align: center;
-            margin: 0;
-            padding: 0;
         }
         h1 {
             color: #1e88e5;
@@ -28,7 +26,7 @@
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        button {
+        button, input[type="submit"] {
             background-color: #1e88e5;
             color: white;
             padding: 10px 20px;
@@ -36,7 +34,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        button:hover {
+        button:hover, input[type="submit"]:hover {
             background-color: #1565c0;
         }
         #graph {
@@ -48,17 +46,13 @@
 <body>
 
     <h1>EuroMillions Last Winning Numbers</h1>
-    <ul id="results"></ul>
+    <ul id="lastDraw"></ul>
 
-    <h2>Frequency of Numbers and Stars</h2>
-    <canvas id="graph"></canvas>
+    <h2>Highest and Least Drawn Numbers</h2>
+    <p id="highProbability"></p>
+    <p id="lowProbability"></p>
 
-    <h2>Generate Random Numbers</h2>
-    <button onclick="generateRandomNumbers()">Generate Random Numbers</button>
-    <p id="randomNumbers"></p>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="app.js"></script>
-
-</body>
-</html>
+    <h2>Enter Your Birthdate for a Lucky Pick</h2>
+    <form id="birthdateForm">
+        <label for="birthdate">Birthdate:</label>
+        <input type="date"
