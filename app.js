@@ -5,28 +5,28 @@ async function fetchResults() {
         });
         const data = await response.json();
 
-        // Filter draws to only show those that are today or earlier
+        // Find the last draw which is today or earlier
         const today = new Date();
-        const filteredData = data.filter(draw => new Date(draw.date) <= today);
-        
-        // Show the last draw
-        showLastDraw(filteredData);
+        const lastDraw = data.find(draw => new Date(draw.date) <= today);
 
-        // Calculate highest and least probability numbers and stars
-        calculateProbabilities(filteredData);
+        if (lastDraw) {
+            showLastDraw(lastDraw);
+            calculateProbabilities(data); // Calculate probabilities from all draws
+        } else {
+            console.error("No valid draws found.");
+        }
 
     } catch (error) {
         console.error('Failed to fetch results:', error);
     }
 }
 
-// Show the last draw results
-function showLastDraw(data) {
-    const lastDraw = data[0]; // Last draw is the first item in the filtered array
+// Show the last draw results along with prize information
+function showLastDraw(draw) {
     const lastDrawList = document.getElementById('lastDraw');
     
     const listItem = document.createElement('li');
-    listItem.textContent = `Draw on ${lastDraw.date}: Numbers: ${lastDraw.numbers.join(', ')} | Stars: ${lastDraw.stars.join(', ')}`;
+    listItem.textContent = `Draw on ${draw.date}: Numbers: ${draw.numbers.join(', ')} | Stars: ${draw.stars.join(', ')} | Prize: ${draw.prize || 'Not available'}`;
     lastDrawList.appendChild(listItem);
 }
 
@@ -61,7 +61,7 @@ function calculateProbabilities(data) {
     createChart('numberChart', 'Most Drawn Numbers (%)', numberLabels.slice(0, 5), numberFrequencies.slice(0, 5));
     createChart('starChart', 'Most Drawn Stars (%)', starLabels.slice(0, 2), starFrequencies.slice(0, 2));
 
-    // Optionally create least drawn charts
+    // Create least drawn charts
     createChart('leastNumberChart', 'Least Drawn Numbers (%)', leastNumberLabels, leastNumberFrequencies);
     createChart('leastStarChart', 'Least Drawn Stars (%)', leastStarLabels, leastStarFrequencies);
 }
