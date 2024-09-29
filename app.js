@@ -27,7 +27,6 @@ function showLastDraw(data) {
     lastDrawList.appendChild(listItem);
 }
 
-// Calculate and display highest and least drawn numbers and stars
 function calculateProbabilities(data) {
     const numberCounts = {};
     const starCounts = {};
@@ -51,13 +50,25 @@ function calculateProbabilities(data) {
     const starFrequencies = sortedStars.map(item => (item[1] / totalDraws * 100).toFixed(2));
 
     // Create charts
-    createChart('numberChart', 'Number Frequencies (%)', numberLabels, numberFrequencies);
-    createChart('starChart', 'Star Frequencies (%)', starLabels, starFrequencies);
+    createChart('numberChart', 'Number Frequencies (%)', numberLabels, numberFrequencies, false);
+    createChart('starChart', 'Star Frequencies (%)', starLabels, starFrequencies, true);
 }
 
 // Create the chart for numbers or stars
-function createChart(canvasId, label, labels, data) {
+function createChart(canvasId, label, labels, data, isStarChart = false) {
     const ctx = document.getElementById(canvasId).getContext('2d');
+
+    // Determine colors based on whether it's a number or star chart
+    const colors = labels.map((_, index) => {
+        if (isStarChart) {
+            // For stars, top 2 green, least 2 red
+            return index < 2 ? 'rgba(54, 162, 235, 0.5)' : 'rgba(255, 99, 132, 0.5)';
+        } else {
+            // For numbers, top 5 green, least 5 red
+            return index < 5 ? 'rgba(54, 162, 235, 0.5)' : 'rgba(255, 99, 132, 0.5)';
+        }
+    });
+
     new Chart(ctx, {
         type: 'bar',
         data: {
@@ -65,8 +76,8 @@ function createChart(canvasId, label, labels, data) {
             datasets: [{
                 label: label,
                 data: data,
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: colors,
+                borderColor: colors.map(color => color.replace('0.5', '1')), // make borders solid
                 borderWidth: 1
             }]
         },
