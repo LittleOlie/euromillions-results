@@ -6,10 +6,7 @@ async function fetchResults() {
         });
         const data = await response.json();
 
-        // Store fetched data globally so we can use it in the lucky number check
-        window.pastResults = data;
-
-        // Display first date, last date, and total number of draws
+	       /// Display first date, last date, and total number of draws
         displayDrawInfo(data);
 
         // Show the last draw
@@ -22,6 +19,21 @@ async function fetchResults() {
         console.error('Failed to fetch results:', error);
     }
 }
+
+// Show the last draw results
+function showLastDraw(data) {
+    const lastDraw = data[data.length - 1]; // Last draw is the last item in the array
+    const lastDrawList = document.getElementById('lastDraw');
+    
+    const listItem = document.createElement('li');
+    listItem.textContent = `Draw on ${lastDraw.date}: Numbers: ${lastDraw.numbers.join(', ')} | Stars: ${lastDraw.stars.join(', ')} | Prize: ${lastDraw.prize || 'Not available'}`;
+    lastDrawList.appendChild(listItem);
+}
+
+
+
+
+/////
 
 // Function to display first date, last date, and total number of draws
 function displayDrawInfo(data) {
@@ -37,18 +49,7 @@ function displayDrawInfo(data) {
         document.getElementById('drawInfo').textContent = 'No draw data available.';
     }
 }
-
-// Show the last draw results
-function showLastDraw(data) {
-    const lastDraw = data[data.length - 1]; // Last draw is the last item in the array
-    const lastDrawList = document.getElementById('lastDraw');
-    
-    const listItem = document.createElement('li');
-    listItem.textContent = `Draw on ${lastDraw.date}: Numbers: ${lastDraw.numbers.join(', ')} | Stars: ${lastDraw.stars.join(', ')} | Prize: ${lastDraw.prize || 'Not available'}`;
-    lastDrawList.appendChild(listItem);
-}
-
-// Function to calculate probabilities and display charts
+//////////////////
 function calculateProbabilities(data) {
     const numberCounts = {};
     const starCounts = {};
@@ -64,7 +65,7 @@ function calculateProbabilities(data) {
     const sortedNumbers = Object.entries(numberCounts).sort((a, b) => b[1] - a[1]);
     const sortedStars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]);
 
-    // Prepare data for charts with frequency count
+    // Prepare data for charts
     const numberLabels = sortedNumbers.map(item => `${item[0]} (${item[1]} draws)`); // Include draw count
     const numberFrequencies = sortedNumbers.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
 
@@ -85,7 +86,9 @@ function calculateProbabilities(data) {
     displayNumberSets(topNumbers, topStars, leastNumbers, leastStars);
 }
 
-// Create the chart for numbers or stars
+
+
+///// Create the chart for numbers or stars
 function createChart(canvasId, label, labels, data, isStarChart = false) {
     const ctx = document.getElementById(canvasId).getContext('2d');
 
@@ -132,7 +135,8 @@ function createChart(canvasId, label, labels, data, isStarChart = false) {
     });
 }
 
-// Display number sets
+
+// display number set
 function displayNumberSets(topNumbers, topStars, leastNumbers, leastStars) {
     // Display top numbers and stars
     document.getElementById('topNumbers').textContent = `Top 5 Numbers: ${topNumbers.join(', ')}`;
@@ -142,6 +146,10 @@ function displayNumberSets(topNumbers, topStars, leastNumbers, leastStars) {
     document.getElementById('leastNumbers').textContent = `Least 5 Numbers: ${leastNumbers.join(', ')}`;
     document.getElementById('leastStars').textContent = `Least 2 Stars: ${leastStars.join(', ')}`;
 }
+
+
+
+
 
 // Generate lucky numbers based on user's birthdate
 function generateLuckyPick(event) {
@@ -157,9 +165,17 @@ function generateLuckyPick(event) {
     const month = birthdate.getMonth() + 1; // Get month (1-12)
     const year = birthdate.getFullYear(); // Get full year
 
-    // Generate lucky numbers based on the birthdate
-    const luckyNumbers = [day % 50, month % 50, year % 50, (day + month) % 50, (day + year) % 50];
-    const luckyStars = [(day + month) % 12, (month + year) % 12];
+    // Generate initial lucky numbers and stars using modulo
+    let luckyNumbers = [day % 50, month % 50, year % 50, (day + month) % 50, (day + year) % 50];
+    let luckyStars = [(day + month) % 12, (month + year) % 12];
+
+    // Replace any 0s with random numbers (1-50 for numbers, 1-12 for stars)
+    luckyNumbers = luckyNumbers.map(num => num === 0 ? getRandomNumber(1, 50) : num);
+    luckyStars = luckyStars.map(star => star === 0 ? getRandomNumber(1, 12) : star);
+
+    // Ensure no duplicate numbers or stars
+    luckyNumbers = ensureNoDuplicates(luckyNumbers, 1, 50);
+    luckyStars = ensureNoDuplicates(luckyStars, 1, 12);
 
     // Display lucky numbers
     document.getElementById('luckyPick').textContent = `Lucky Numbers: ${luckyNumbers.join(', ')} | Lucky Stars: ${luckyStars.join(', ')}`;
@@ -168,29 +184,30 @@ function generateLuckyPick(event) {
     checkIfLuckySetAppeared(luckyNumbers, luckyStars);
 }
 
-// Function to check if the generated lucky set has appeared in any past results
-function checkIfLuckySetAppeared(luckyNumbers, luckyStars) {
-    const pastResults = window.pastResults || [];
-
-    // Check each past draw for a match with the generated lucky set
-    const hasAppeared = pastResults.some(draw => {
-        const numbersMatch = arraysEqual(luckyNumbers, draw.numbers);
-        const starsMatch = arraysEqual(luckyStars, draw.stars);
-        return numbersMatch && starsMatch;
-    });
-
-    // Display the result to the user
-    const resultMessage = hasAppeared
-        ? 'Congratulations! This set of numbers and stars has appeared in past draws.'
-        : 'This set of numbers and stars has never appeared in past draws.';
-    
-    document.getElementById('resultCheck').textContent = resultMessage;
+// Utility function to generate a random number in a given range (inclusive)
+function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Utility function to check if two arrays are equal
-function arraysEqual(arr1, arr2) {
-    if (arr1.length !== arr2.length) return false;
-    arr1.sort();
-    arr2.sort();
-    return arr1.every((value, index) => value === arr2[index]);
+// Utility function to ensure no duplicate numbers in an array
+function ensureNoDuplicates(arr, min, max) {
+    const uniqueSet = new Set(arr);
+
+    while (uniqueSet.size < arr.length) {
+        // If a duplicate was found, add a new random number until the set is unique
+        uniqueSet.add(getRandomNumber(min, max));
+    }
+
+    return Array.from(uniqueSet);
 }
+
+
+
+
+
+
+// Add event listener to the form
+document.getElementById('birthdateForm').addEventListener('submit', generateLuckyPick);
+
+// Initialize by fetching results when the page loads
+document.addEventListener('DOMContentLoaded', fetchResults);
