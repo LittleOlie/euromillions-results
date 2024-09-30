@@ -20,7 +20,7 @@ async function fetchResults() {
     }
 }
 
-// Show the last draw results
+// Show the last draw results here
 function showLastDraw(data) {
     const lastDraw = data[data.length - 1]; // Last draw is the last item in the array
     const lastDrawList = document.getElementById('lastDraw');
