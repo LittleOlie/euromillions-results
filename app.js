@@ -30,9 +30,9 @@ function showLastDraw(data) {
     // Create a span element for the numbers with black text, large font, and round background
     const numbersSpan = document.createElement('span');
     numbersSpan.style.color = 'black';
-    numbersSpan.style.fontSize = '24px'; // Larger font size
+    numbersSpan.style.fontSize = '20px'; // Larger font size
     numbersSpan.style.backgroundColor = 'lightgray'; // Background color
-    numbersSpan.style.borderRadius = '100%'; // Round background
+    numbersSpan.style.borderRadius = '60%'; // Round background
     numbersSpan.style.padding = '10px'; // Padding inside the circle
     numbersSpan.style.marginRight = '10px'; // Spacing between numbers and stars
     numbersSpan.textContent = `Numbers: ${lastDraw.numbers.join(', ')}`;
@@ -40,7 +40,7 @@ function showLastDraw(data) {
     // Create a span element for the stars with gold text, large font, and star shapes
     const starsSpan = document.createElement('span');
     starsSpan.style.color = 'gold';
-    starsSpan.style.fontSize = '24px'; // Larger font size for stars
+    starsSpan.style.fontSize = '20px'; // Larger font size for stars
     
     const stars = lastDraw.stars.map(star => `★${star}`).join(' ');
     starsSpan.innerHTML = ` | Stars: ${stars}`;
