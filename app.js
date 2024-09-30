@@ -24,13 +24,34 @@ async function fetchResults() {
 function showLastDraw(data) {
     const lastDraw = data[data.length - 1]; // Last draw is the last item in the array
     const lastDrawList = document.getElementById('lastDraw');
-    
+
     const listItem = document.createElement('li');
-    listItem.textContent = `Draw on ${lastDraw.date}: Numbers: ${lastDraw.numbers.join(', ')} | Stars: ${lastDraw.stars.join(', ')} | Prize: ${lastDraw.prize || 'Not available'}`;
+
+    // Create a span element for the numbers with black text
+    const numbersSpan = document.createElement('span');
+    numbersSpan.style.color = 'black';
+    numbersSpan.textContent = `Numbers: ${lastDraw.numbers.join(', ')}`;
+
+    // Create a span element for the stars with yellow text and star shapes
+    const starsSpan = document.createElement('span');
+    starsSpan.style.color = 'yellow';
+    
+    const stars = lastDraw.stars.map(star => `★${star}`).join(' ');
+    starsSpan.innerHTML = ` | Stars: ${stars}`;
+
+    // Set the draw date and prize
+    const drawInfo = `Draw on ${lastDraw.date}`;
+    const prizeInfo = ` | Prize: ${lastDraw.prize || 'Not available'}`;
+
+    // Append all elements to the list item
+    listItem.innerHTML = `${drawInfo}: `;
+    listItem.appendChild(numbersSpan);
+    listItem.appendChild(starsSpan);
+    listItem.innerHTML += prizeInfo;
+
+    // Add the list item to the DOM
     lastDrawList.appendChild(listItem);
 }
-
-
 
 
 /////
