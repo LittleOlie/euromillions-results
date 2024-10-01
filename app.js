@@ -207,8 +207,46 @@ function generateLuckyPick(event) {
     // Display lucky numbers
     document.getElementById('luckyPick').textContent = `Lucky Numbers: ${luckyNumbers.join(', ')} | Lucky Stars: ${luckyStars.join(', ')}`;
 
-    // Check if this set of numbers and stars appeared in past results
-    checkIfLuckySetAppeared(luckyNumbers, luckyStars);
+    // Check if the generated lucky set appeared in past results
+function checkIfLuckySetAppeared(luckyNumbers, luckyStars) {
+    // Fetch past draw data
+    fetchResults().then(data => {
+        let matchFound = false;
+
+        // Iterate over all past draws
+        data.forEach(draw => {
+            const drawNumbers = draw.numbers.sort((a, b) => a - b);  // Sort to compare easily
+            const drawStars = draw.stars.sort((a, b) => a - b);      // Sort to compare easily
+
+            // Check if both numbers and stars match
+            if (arraysEqual(luckyNumbers.sort((a, b) => a - b), drawNumbers) &&
+                arraysEqual(luckyStars.sort((a, b) => a - b), drawStars)) {
+                matchFound = true;
+            }
+        });
+
+        // Display result based on whether a match was found
+        if (matchFound) {
+            document.getElementById('luckyPickResult').textContent = 
+                'Your lucky numbers have already been drawn in the past! Keep trying!';
+        } else {
+            document.getElementById('luckyPickResult').textContent = 
+                'Your lucky numbers have not been drawn yet! There is hope!';
+        }
+    }).catch(error => {
+        console.error('Failed to check past results:', error);
+    });
+}
+
+// Helper function to check if two arrays are equal
+function arraysEqual(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) return false;
+    }
+    return true;
+}
+
 }
 
 // Utility function to generate a random number in a given range (inclusive)
