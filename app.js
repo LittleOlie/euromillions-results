@@ -45,9 +45,8 @@ function showLastDraw(data) {
 
     // Create a span element for the stars
     const starsSpan = document.createElement('span');
-    starsSpan.style.color = 'gold';
-    starsSpan.style.fontSize = '20px';
-    
+    starsSpan.classList.add('gold-stars');  // Adding the CSS class for stars
+
     const stars = lastDraw.stars.map(star => `★${star}`).join(' ');
     starsSpan.innerHTML = ` | Stars: ${stars}`;
 
@@ -64,6 +63,7 @@ function showLastDraw(data) {
     // Add the list item to the DOM
     lastDrawList.appendChild(listItem);
 }
+
 
 // Display draw information (first draw, last draw, and total draws)
 function displayDrawInfo(data) {
