@@ -178,6 +178,35 @@ function displayNumberSets(topNumbers, topStars, leastNumbers, leastStars) {
 
 
 
+// Check if the generated lucky pick appeared in past results
+function checkIfLuckySetAppeared(luckyNumbers, luckyStars) {
+    // Fetch the draw data (assumes that 'data' is available globally)
+    const lastDrawList = document.getElementById('luckyPickResult');
+
+    let appearedInDraws = false;
+
+    // Loop through all draws to see if the lucky numbers and stars match any past draw
+    data.forEach(draw => {
+        const drawNumbers = new Set(draw.numbers);
+        const drawStars = new Set(draw.stars);
+
+        // Check if all the lucky numbers and stars match a past draw
+        const numbersMatch = luckyNumbers.every(num => drawNumbers.has(num));
+        const starsMatch = luckyStars.every(star => drawStars.has(star));
+
+        if (numbersMatch && starsMatch) {
+            appearedInDraws = true;
+        }
+    });
+
+    // Display result based on whether the numbers appeared in past draws
+    if (appearedInDraws) {
+        lastDrawList.textContent = 'Your lucky pick has already been drawn before. Maybe it’s a sign!';
+    } else {
+        lastDrawList.textContent = 'Your lucky pick has not yet been drawn. There’s still hope!';
+    }
+}
+
 // Generate lucky numbers based on user's birthdate
 function generateLuckyPick(event) {
     event.preventDefault(); // Prevent form submission
@@ -228,13 +257,12 @@ function ensureNoDuplicates(arr, min, max) {
     return Array.from(uniqueSet);
 }
 
-
-
-
-
-
-// Add event listener to the form
-document.getElementById('birthdateForm').addEventListener('submit', generateLuckyPick);
-
 // Initialize by fetching results when the page loads
 document.addEventListener('DOMContentLoaded', fetchResults);
+
+
+
+
+
+
+
