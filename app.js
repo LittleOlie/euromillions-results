@@ -2,7 +2,7 @@
 let pastDrawData = [];
 let numberCounts = {};
 let starCounts = {};
-let totalDraws = 0;
+let totalDraws = 0;  // Ensure totalDraws is initialized
 
 // Fetching results from the API
 async function fetchResults() {
@@ -14,6 +14,9 @@ async function fetchResults() {
 
         // Store the fetched data globally for future use
         pastDrawData = data;
+
+        // Update totalDraws to be the length of the data
+        totalDraws = data.length;
 
         // Display first date, last date, and total number of draws
         displayDrawInfo(data);
@@ -205,7 +208,7 @@ function createLuckyPickTable(luckyNumbers, luckyStars) {
 
     luckyNumbers.forEach(number => {
         const count = numberCounts[number] || 0;
-        const percentage = ((count / totalDraws) * 100).toFixed(2);
+        const percentage = totalDraws > 0 ? ((count / totalDraws) * 100).toFixed(2) : 0;
 
         const row = document.createElement('tr');
         row.innerHTML = `<td>${number}</td><td>${count}</td><td>${percentage}%</td>`;
@@ -214,7 +217,7 @@ function createLuckyPickTable(luckyNumbers, luckyStars) {
 
     luckyStars.forEach(star => {
         const count = starCounts[star] || 0;
-        const percentage = ((count / totalDraws) * 100).toFixed(2);
+        const percentage = totalDraws > 0 ? ((count / totalDraws) * 100).toFixed(2) : 0;
 
         const row = document.createElement('tr');
         row.innerHTML = `<td>★${star}</td><td>${count}</td><td>${percentage}%</td>`;
