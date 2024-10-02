@@ -33,23 +33,19 @@ function showLastDraw(data) {
 
     const listItem = document.createElement('li');
 
-    // Create a span element for the numbers
+    // Create a span element for the numbers with a white circular background
     const numbersSpan = document.createElement('span');
-    numbersSpan.style.color = 'black';
     numbersSpan.style.fontSize = '20px';
-    numbersSpan.style.backgroundColor = 'lightgray';
-    numbersSpan.style.borderRadius = '60%';
-    numbersSpan.style.padding = '10px';
-    numbersSpan.style.marginRight = '10px';
-    numbersSpan.textContent = `Numbers: ${lastDraw.numbers.join(', ')}`;
+    numbersSpan.innerHTML = lastDraw.numbers.map(num => {
+        return `<span style="display: inline-block; background-color: white; border-radius: 50%; padding: 10px; width: 40px; height: 40px; text-align: center; margin-right: 10px;">${num}</span>`;
+    }).join('');
 
-    // Create a span element for the stars
+    // Create a span element for the stars with a golden circular background
     const starsSpan = document.createElement('span');
-    starsSpan.style.color = 'gold';
     starsSpan.style.fontSize = '20px';
-    
-    const stars = lastDraw.stars.map(star => `★${star}`).join(' ');
-    starsSpan.innerHTML = ` | Stars: ${stars}`;
+    starsSpan.innerHTML = lastDraw.stars.map(star => {
+        return `<span style="display: inline-block; background-color: gold; border-radius: 50%; padding: 10px; width: 40px; height: 40px; text-align: center; margin-right: 10px;">★${star}</span>`;
+    }).join('');
 
     // Set the draw date and prize
     const drawInfo = `Draw on ${lastDraw.date}`;
@@ -192,7 +188,36 @@ function generateLuckyPick(event) {
 
     document.getElementById('luckyPick').textContent = `Lucky Numbers: ${luckyNumbers.join(', ')} | Lucky Stars: ${luckyStars.join(', ')}`;
 
+    // Create a table for lucky numbers
+    createLuckyPickTable(luckyNumbers, luckyStars);
+
     checkIfLuckySetAppeared(luckyNumbers, luckyStars);
+}
+
+// Create a table for lucky pick numbers with draw count and percentage
+function createLuckyPickTable(luckyNumbers, luckyStars) {
+    const tableBody = document.getElementById('luckyPickTableBody');
+    tableBody.innerHTML = ''; // Clear previous data
+
+    const totalDraws = pastDrawData.length;
+
+    luckyNumbers.forEach(number => {
+        const count = pastDrawData.reduce((acc, draw) => acc + (draw.numbers.includes(number) ? 1 : 0), 0);
+        const percentage = ((count / totalDraws) * 100).toFixed(2);
+
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${number}</td><td>${count}</td><td>${percentage}%</td>`;
+        tableBody.appendChild(row);
+    });
+
+    luckyStars.forEach(star => {
+        const count = pastDrawData.reduce((acc, draw) => acc + (draw.stars.includes(star) ? 1 : 0), 0);
+        const percentage = ((count / totalDraws) * 100).toFixed(2);
+
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>★${star}</td><td>${count}</td><td>${percentage}%</td>`;
+        tableBody.appendChild(row);
+    });
 }
 
 // Check if the lucky set appeared in past results
