@@ -1,5 +1,8 @@
-// Global variable to store past draw data
+// Global variable to store past draw data and processed counts
 let pastDrawData = [];
+let numberCounts = {};
+let starCounts = {};
+let totalDraws = 0;
 
 // Fetching results from the API
 async function fetchResults() {
@@ -78,25 +81,26 @@ function displayDrawInfo(data) {
 
 // Calculate probabilities of numbers and stars
 function calculateProbabilities(data) {
-    const numberCounts = {};
-    const starCounts = {};
-    const totalDraws = data.length;
+    numberCounts = {};
+    starCounts = {};
 
-    // Count occurrences of each number and star
-    data.forEach(draw => {
-        draw.numbers.forEach(num => numberCounts[num] = (numberCounts[num] || 0) + 1);
-        draw.stars.forEach(star => starCounts[star] = (starCounts[star] || 0) + 1);
-    });
 
-    // Sort numbers and stars by frequency
-    const sortedNumbers = Object.entries(numberCounts).sort((a, b) => b[1] - a[1]);
-    const sortedStars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]);
+  // Count occurrences of each number and star
+  data.forEach(draw => {
+    draw.numbers.forEach(num => numberCounts[num] = (numberCounts[num] || 0) + 1);
+    draw.stars.forEach(star => starCounts[star] = (starCounts[star] || 0) + 1);
+});
 
-    const numberLabels = sortedNumbers.map(item => `${item[0]} (${item[1]} draws)`);
-    const numberFrequencies = sortedNumbers.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
+// Sort numbers and stars by frequency
+const sortedNumbers = Object.entries(numberCounts).sort((a, b) => b[1] - a[1]);
+const sortedStars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]);
 
-    const starLabels = sortedStars.map(item => `${item[0]} (${item[1]} draws)`);
-    const starFrequencies = sortedStars.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
+const numberLabels = sortedNumbers.map(item => `${item[0]} (${item[1]} draws)`);
+const numberFrequencies = sortedNumbers.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
+
+const starLabels = sortedStars.map(item => `${item[0]} (${item[1]} draws)`);
+const starFrequencies = sortedStars.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
+
 
     // Create charts
     createChart('numberChart', 'Number Frequencies (%)', numberLabels, numberFrequencies, false);
@@ -199,10 +203,8 @@ function createLuckyPickTable(luckyNumbers, luckyStars) {
     const tableBody = document.getElementById('luckyPickTableBody');
     tableBody.innerHTML = ''; // Clear previous data
 
-    const totalDraws = pastDrawData.length;
-
     luckyNumbers.forEach(number => {
-        const count = pastDrawData.reduce((acc, draw) => acc + (draw.numbers.includes(number) ? 1 : 0), 0);
+        const count = numberCounts[number] || 0;
         const percentage = ((count / totalDraws) * 100).toFixed(2);
 
         const row = document.createElement('tr');
@@ -211,7 +213,7 @@ function createLuckyPickTable(luckyNumbers, luckyStars) {
     });
 
     luckyStars.forEach(star => {
-        const count = pastDrawData.reduce((acc, draw) => acc + (draw.stars.includes(star) ? 1 : 0), 0);
+        const count = starCounts[star] || 0;
         const percentage = ((count / totalDraws) * 100).toFixed(2);
 
         const row = document.createElement('tr');
@@ -219,6 +221,7 @@ function createLuckyPickTable(luckyNumbers, luckyStars) {
         tableBody.appendChild(row);
     });
 }
+
 
 // Check if the lucky set appeared in past results
 function checkIfLuckySetAppeared(luckyNumbers, luckyStars) {
