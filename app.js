@@ -110,10 +110,10 @@ const starFrequencies = sortedStars.map(item => ((item[1] / totalDraws) * 100).t
     createChart('starChart', 'Star Frequencies (%)', starLabels, starFrequencies, true);
 
     // Get top and least frequent numbers and stars
-    const topNumbers = sortedNumbers.slice(0, 5).map(item => item[0]);
-    const leastNumbers = sortedNumbers.slice(-5).map(item => item[0]);
-    const topStars = sortedStars.slice(0, 2).map(item => item[0]);
-    const leastStars = sortedStars.slice(-2).map(item => item[0]);
+    const topNumbers = sortedNumbers.slice(0, 10).map(item => item[0]);
+    const leastNumbers = sortedNumbers.slice(-10).map(item => item[0]);
+    const topStars = sortedStars.slice(0, 4).map(item => item[0]);
+    const leastStars = sortedStars.slice(-4).map(item => item[0]);
 
     displayNumberSets(topNumbers, topStars, leastNumbers, leastStars);
 }
@@ -164,10 +164,10 @@ function createChart(canvasId, label, labels, data, isStarChart = false) {
 
 // Display the top and least frequent numbers and stars
 function displayNumberSets(topNumbers, topStars, leastNumbers, leastStars) {
-    document.getElementById('topNumbers').textContent = `Top 5 Numbers: ${topNumbers.join(', ')}`;
-    document.getElementById('topStars').textContent = `Top 2 Stars: ${topStars.join(', ')}`;
-    document.getElementById('leastNumbers').textContent = `Least 5 Numbers: ${leastNumbers.join(', ')}`;
-    document.getElementById('leastStars').textContent = `Least 2 Stars: ${leastStars.join(', ')}`;
+    document.getElementById('topNumbers').textContent = `Top 10 Numbers: ${topNumbers.join(', ')}`;
+    document.getElementById('topStars').textContent = `Top 4 Stars: ${topStars.join(', ')}`;
+    document.getElementById('leastNumbers').textContent = `Least 10 Numbers: ${leastNumbers.join(', ')}`;
+    document.getElementById('leastStars').textContent = `Least 4 Stars: ${leastStars.join(', ')}`;
 }
 
 // Generate lucky numbers based on user's birthdate
@@ -270,84 +270,6 @@ function ensureNoDuplicates(arr, min, max) {
 
 
 
-// Function to generate combinations for top/least numbers and stars
-function generateCombinations() {
-    // Select top 10 numbers and least 10 numbers
-    const top10Numbers = Object.entries(numberCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(item => parseInt(item[0]));
-    const least10Numbers = Object.entries(numberCounts).sort((a, b) => a[1] - b[1]).slice(0, 10).map(item => parseInt(item[0]));
-
-    // Select top 4 stars and least 4 stars
-    const top4Stars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(item => parseInt(item[0]));
-    const least4Stars = Object.entries(starCounts).sort((a, b) => a[1] - b[1]).slice(0, 4).map(item => parseInt(item[0]));
-
-    // Generate combinations for each category
-    const combinationsTopNumbersTopStars = generateNumberStarCombinations(top10Numbers, top4Stars, 5, 2);
-    const combinationsTopNumbersLeastStars = generateNumberStarCombinations(top10Numbers, least4Stars, 5, 2);
-    const combinationsLeastNumbersTopStars = generateNumberStarCombinations(least10Numbers, top4Stars, 5, 2);
-    const combinationsLeastNumbersLeastStars = generateNumberStarCombinations(least10Numbers, least4Stars, 5, 2);
-
-    // Display the combined table with side-by-side rows
-    displayCombinedTable(combinationsTopNumbersTopStars, combinationsTopNumbersLeastStars, combinationsLeastNumbersTopStars, combinationsLeastNumbersLeastStars);
-}
-
-// Function to display combined table with rows side by side
-function displayCombinedTable(combosTopTop, combosTopLeast, combosLeastTop, combosLeastLeast) {
-    const tableBody = document.getElementById('combinedTableBody');
-    tableBody.innerHTML = ''; // Clear previous data
-
-    // Find the max length of combinations to fill all rows equally
-    const maxRows = Math.max(combosTopTop.length, combosTopLeast.length, combosLeastTop.length, combosLeastLeast.length);
-
-    for (let i = 0; i < maxRows; i++) {
-        const row = document.createElement('tr');
-
-        row.innerHTML = `
-            <td>${combosTopTop[i] ? `${combosTopTop[i].numbers.join(', ')} | ★${combosTopTop[i].stars.join(', ★')}` : '-'}</td>
-            <td>${combosTopLeast[i] ? `${combosTopLeast[i].numbers.join(', ')} | ★${combosTopLeast[i].stars.join(', ★')}` : '-'}</td>
-            <td>${combosLeastTop[i] ? `${combosLeastTop[i].numbers.join(', ')} | ★${combosLeastTop[i].stars.join(', ★')}` : '-'}</td>
-            <td>${combosLeastLeast[i] ? `${combosLeastLeast[i].numbers.join(', ')} | ★${combosLeastLeast[i].stars.join(', ★')}` : '-'}</td>
-        `;
-
-        tableBody.appendChild(row);
-    }
-}
-
-// Helper function to generate combinations of 5 numbers and 2 stars
-function generateNumberStarCombinations(numbers, stars, numberCount, starCount) {
-    let combinations = [];
-    
-    // Generate all combinations of 5 numbers
-    const numberCombinations = getCombinations(numbers, numberCount);
-
-    // Generate all combinations of 2 stars
-    const starCombinations = getCombinations(stars, starCount);
-
-    // Combine each set of 5 numbers with each set of 2 stars
-    numberCombinations.forEach(numCombo => {
-        starCombinations.forEach(starCombo => {
-            combinations.push({
-                numbers: numCombo,
-                stars: starCombo
-            });
-        });
-    });
-
-    return combinations;
-}
-
-// Helper function to get combinations of given length from an array
-function getCombinations(arr, length) {
-    if (length === 1) return arr.map(el => [el]);
-    let combos = [];
-    arr.forEach((el, index) => {
-        const smallerCombos = getCombinations(arr.slice(index + 1), length - 1);
-        smallerCombos.forEach(combo => combos.push([el, ...combo]));
-    });
-    return combos;
-}
-
-// Event listener for generating combined table
-document.getElementById('generateCombinationsButton').addEventListener('click', generateCombinations);
 
 
 
