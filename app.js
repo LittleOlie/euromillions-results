@@ -270,6 +270,62 @@ function ensureNoDuplicates(arr, min, max) {
 
 
 
+// Function to randomly pick 5 numbers and 2 stars from top and least numbers/stars
+function generateRandomCombination() {
+    // Combine top 10 and least 10 numbers
+    const combinedNumbers = [
+        ...Object.entries(numberCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(item => parseInt(item[0])),
+        ...Object.entries(numberCounts).sort((a, b) => a[1] - b[1]).slice(0, 10).map(item => parseInt(item[0]))
+    ];
+
+    // Combine top 4 and least 4 stars
+    const combinedStars = [
+        ...Object.entries(starCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(item => parseInt(item[0])),
+        ...Object.entries(starCounts).sort((a, b) => a[1] - b[1]).slice(0, 4).map(item => parseInt(item[0]))
+    ];
+
+    // Randomly pick 5 numbers
+    const selectedNumbers = getRandomUniqueElements(combinedNumbers, 5);
+
+    // Randomly pick 2 stars
+    const selectedStars = getRandomUniqueElements(combinedStars, 2);
+
+    // Display the result
+    displayRandomCombination(selectedNumbers, selectedStars);
+}
+
+// Helper function to get random unique elements from an array
+function getRandomUniqueElements(arr, count) {
+    const result = [];
+    const usedIndices = new Set();
+
+    while (result.length < count) {
+        const randomIndex = Math.floor(Math.random() * arr.length);
+        if (!usedIndices.has(randomIndex)) {
+            result.push(arr[randomIndex]);
+            usedIndices.add(randomIndex);
+        }
+    }
+
+    return result;
+}
+
+// Function to display the randomly picked combination
+function displayRandomCombination(numbers, stars) {
+    const resultDiv = document.getElementById('randomCombinationResult');
+    
+    resultDiv.innerHTML = `Random Combination:<br> 
+        Numbers: ${numbers.join(', ')}<br>
+        Stars: ★${stars.join(', ★')}`;
+}
+
+// Event listener for the random combination button
+document.getElementById('generateRandomCombinationButton').addEventListener('click', generateRandomCombination);
+
+
+
+
+
 
 
 
