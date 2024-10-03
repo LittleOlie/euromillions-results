@@ -314,7 +314,7 @@ function getRandomUniqueElements(arr, count) {
 function displayRandomCombination(numbers, stars) {
     const resultDiv = document.getElementById('randomCombinationResult');
     
-    resultDiv.innerHTML = `Random Combination:<br> 
+    resultDiv.innerHTML = `This is your winning number:<br> 
         Numbers: ${numbers.join(', ')}<br>
         Stars: ★${stars.join(', ★')}`;
 }
