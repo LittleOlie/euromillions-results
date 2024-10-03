@@ -270,23 +270,27 @@ function ensureNoDuplicates(arr, min, max) {
 
 
 
-// Function to generate 5-number and 2-star combinations from the top/least numbers and stars
+// Function to generate combinations for top/least numbers and stars
 function generateCombinations() {
     // Select top 10 numbers and least 10 numbers
     const top10Numbers = Object.entries(numberCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(item => parseInt(item[0]));
     const least10Numbers = Object.entries(numberCounts).sort((a, b) => a[1] - b[1]).slice(0, 10).map(item => parseInt(item[0]));
 
-    // Select top 5 stars and least 4 stars
-    const top5Stars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(item => parseInt(item[0]));
+    // Select top 4 stars and least 4 stars
+    const top4Stars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(item => parseInt(item[0]));
     const least4Stars = Object.entries(starCounts).sort((a, b) => a[1] - b[1]).slice(0, 4).map(item => parseInt(item[0]));
 
-    // Generate all combinations of 5 numbers and 2 stars from top and least sets
-    const combinationsTopNumbers = generateNumberStarCombinations(top10Numbers, top5Stars, 5, 2);
-    const combinationsLeastNumbers = generateNumberStarCombinations(least10Numbers, least4Stars, 5, 2);
+    // Generate combinations for each category
+    const combinationsTopNumbersTopStars = generateNumberStarCombinations(top10Numbers, top4Stars, 5, 2);
+    const combinationsTopNumbersLeastStars = generateNumberStarCombinations(top10Numbers, least4Stars, 5, 2);
+    const combinationsLeastNumbersTopStars = generateNumberStarCombinations(least10Numbers, top4Stars, 5, 2);
+    const combinationsLeastNumbersLeastStars = generateNumberStarCombinations(least10Numbers, least4Stars, 5, 2);
 
     // Display the tables
-    displayCombinationsTable('combinationsTopNumbers', combinationsTopNumbers);
-    displayCombinationsTable('combinationsLeastNumbers', combinationsLeastNumbers);
+    displayCombinationsTable('combinationsTopNumbersTopStars', combinationsTopNumbersTopStars);
+    displayCombinationsTable('combinationsTopNumbersLeastStars', combinationsTopNumbersLeastStars);
+    displayCombinationsTable('combinationsLeastNumbersTopStars', combinationsLeastNumbersTopStars);
+    displayCombinationsTable('combinationsLeastNumbersLeastStars', combinationsLeastNumbersLeastStars);
 }
 
 // Helper function to generate combinations of 5 numbers and 2 stars
@@ -312,6 +316,24 @@ function generateNumberStarCombinations(numbers, stars, numberCount, starCount) 
     return combinations;
 }
 
+// Function to display combinations table
+function displayCombinationsTable(tableId, combinations) {
+    const tableBody = document.getElementById(tableId);
+    tableBody.innerHTML = ''; // Clear previous data
+
+    // Only show a subset of combinations (4 rows per table)
+    const subsetCombinations = combinations.slice(0, 4);
+
+    subsetCombinations.forEach(combo => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${combo.numbers.join(', ')}</td>
+            <td>★${combo.stars.join(', ★')}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
 // Helper function to get combinations of given length from an array
 function getCombinations(arr, length) {
     if (length === 1) return arr.map(el => [el]);
@@ -323,24 +345,8 @@ function getCombinations(arr, length) {
     return combos;
 }
 
-// Function to display combinations table
-function displayCombinationsTable(tableId, combinations) {
-    const tableBody = document.getElementById(tableId);
-    tableBody.innerHTML = ''; // Clear previous data
-
-    combinations.forEach(combo => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${combo.numbers.join(', ')}</td>
-            <td>★${combo.stars.join(', ★')}</td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
 // Event listener for generating combinations table
 document.getElementById('generateCombinationsButton').addEventListener('click', generateCombinations);
-
 
 
 
