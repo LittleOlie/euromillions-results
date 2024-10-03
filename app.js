@@ -286,11 +286,30 @@ function generateCombinations() {
     const combinationsLeastNumbersTopStars = generateNumberStarCombinations(least10Numbers, top4Stars, 5, 2);
     const combinationsLeastNumbersLeastStars = generateNumberStarCombinations(least10Numbers, least4Stars, 5, 2);
 
-    // Display the tables
-    displayCombinationsTable('combinationsTopNumbersTopStars', combinationsTopNumbersTopStars);
-    displayCombinationsTable('combinationsTopNumbersLeastStars', combinationsTopNumbersLeastStars);
-    displayCombinationsTable('combinationsLeastNumbersTopStars', combinationsLeastNumbersTopStars);
-    displayCombinationsTable('combinationsLeastNumbersLeastStars', combinationsLeastNumbersLeastStars);
+    // Display the combined table with side-by-side rows
+    displayCombinedTable(combinationsTopNumbersTopStars, combinationsTopNumbersLeastStars, combinationsLeastNumbersTopStars, combinationsLeastNumbersLeastStars);
+}
+
+// Function to display combined table with rows side by side
+function displayCombinedTable(combosTopTop, combosTopLeast, combosLeastTop, combosLeastLeast) {
+    const tableBody = document.getElementById('combinedTableBody');
+    tableBody.innerHTML = ''; // Clear previous data
+
+    // Find the max length of combinations to fill all rows equally
+    const maxRows = Math.max(combosTopTop.length, combosTopLeast.length, combosLeastTop.length, combosLeastLeast.length);
+
+    for (let i = 0; i < maxRows; i++) {
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${combosTopTop[i] ? `${combosTopTop[i].numbers.join(', ')} | ★${combosTopTop[i].stars.join(', ★')}` : '-'}</td>
+            <td>${combosTopLeast[i] ? `${combosTopLeast[i].numbers.join(', ')} | ★${combosTopLeast[i].stars.join(', ★')}` : '-'}</td>
+            <td>${combosLeastTop[i] ? `${combosLeastTop[i].numbers.join(', ')} | ★${combosLeastTop[i].stars.join(', ★')}` : '-'}</td>
+            <td>${combosLeastLeast[i] ? `${combosLeastLeast[i].numbers.join(', ')} | ★${combosLeastLeast[i].stars.join(', ★')}` : '-'}</td>
+        `;
+
+        tableBody.appendChild(row);
+    }
 }
 
 // Helper function to generate combinations of 5 numbers and 2 stars
@@ -316,24 +335,6 @@ function generateNumberStarCombinations(numbers, stars, numberCount, starCount) 
     return combinations;
 }
 
-// Function to display combinations table
-function displayCombinationsTable(tableId, combinations) {
-    const tableBody = document.getElementById(tableId);
-    tableBody.innerHTML = ''; // Clear previous data
-
-    // Only show a subset of combinations (4 rows per table)
-    const subsetCombinations = combinations.slice(0, 4);
-
-    subsetCombinations.forEach(combo => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${combo.numbers.join(', ')}</td>
-            <td>★${combo.stars.join(', ★')}</td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
 // Helper function to get combinations of given length from an array
 function getCombinations(arr, length) {
     if (length === 1) return arr.map(el => [el]);
@@ -345,7 +346,7 @@ function getCombinations(arr, length) {
     return combos;
 }
 
-// Event listener for generating combinations table
+// Event listener for generating combined table
 document.getElementById('generateCombinationsButton').addEventListener('click', generateCombinations);
 
 
