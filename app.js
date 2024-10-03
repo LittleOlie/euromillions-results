@@ -266,6 +266,81 @@ function ensureNoDuplicates(arr, min, max) {
     return uniqueArr;
 }
 
+
+
+// Function to generate combinations from the top 10 and least 10 numbers and top 5 and least 4 stars
+function generateCombinations() {
+    // Select top 10 numbers and least 10 numbers
+    const top10Numbers = Object.entries(numberCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(item => parseInt(item[0]));
+    const least10Numbers = Object.entries(numberCounts).sort((a, b) => a[1] - b[1]).slice(0, 10).map(item => parseInt(item[0]));
+
+    // Select top 5 stars and least 4 stars
+    const top5Stars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(item => parseInt(item[0]));
+    const least4Stars = Object.entries(starCounts).sort((a, b) => a[1] - b[1]).slice(0, 4).map(item => parseInt(item[0]));
+
+    // Generate all combinations of top 10 numbers with top 5 stars
+    const combinationsTopNumbers = generateNumberStarCombinations(top10Numbers, top5Stars);
+
+    // Generate all combinations of least 10 numbers with least 4 stars
+    const combinationsLeastNumbers = generateNumberStarCombinations(least10Numbers, least4Stars);
+
+    // Display the tables
+    displayCombinationsTable('combinationsTopNumbers', combinationsTopNumbers);
+    displayCombinationsTable('combinationsLeastNumbers', combinationsLeastNumbers);
+}
+
+// Helper function to generate combinations of numbers and stars
+function generateNumberStarCombinations(numbers, stars) {
+    let combinations = [];
+    numbers.forEach(number => {
+        stars.forEach(star => {
+            const countNumbers = numberCounts[number] || 0;
+            const countStars = starCounts[star] || 0;
+            const percentageNumber = totalDraws > 0 ? ((countNumbers / totalDraws) * 100).toFixed(2) : 0;
+            const percentageStar = totalDraws > 0 ? ((countStars / totalDraws) * 100).toFixed(2) : 0;
+
+            combinations.push({
+                number: number,
+                star: star,
+                countNumber: countNumbers,
+                countStar: countStars,
+                percentageNumber: percentageNumber,
+                percentageStar: percentageStar
+            });
+        });
+    });
+    return combinations;
+}
+
+// Function to display combinations table
+function displayCombinationsTable(tableId, combinations) {
+    const tableBody = document.getElementById(tableId);
+    tableBody.innerHTML = ''; // Clear previous data
+
+    combinations.forEach(combo => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${combo.number}</td>
+            <td>★${combo.star}</td>
+            <td>${combo.countNumber}</td>
+            <td>${combo.percentageNumber}%</td>
+            <td>${combo.countStar}</td>
+            <td>${combo.percentageStar}%</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+// Event listener for generating combinations table
+document.getElementById('generateCombinationsButton').addEventListener('click', generateCombinations);
+
+
+
+
+
+
+
+
 // Fetch results on page load
 document.addEventListener('DOMContentLoaded', fetchResults);
 
