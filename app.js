@@ -268,48 +268,59 @@ function ensureNoDuplicates(arr, min, max) {
 
 
 
-// Function to generate combinations from the top 10 and least 10 numbers and top 5 and least 4 stars
+
+
+// Function to generate 5-number and 2-star combinations from the top/least numbers and stars
 function generateCombinations() {
     // Select top 10 numbers and least 10 numbers
     const top10Numbers = Object.entries(numberCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(item => parseInt(item[0]));
     const least10Numbers = Object.entries(numberCounts).sort((a, b) => a[1] - b[1]).slice(0, 10).map(item => parseInt(item[0]));
 
     // Select top 5 stars and least 4 stars
-    const top5Stars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(item => parseInt(item[0]));
+    const top5Stars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(item => parseInt(item[0]));
     const least4Stars = Object.entries(starCounts).sort((a, b) => a[1] - b[1]).slice(0, 4).map(item => parseInt(item[0]));
 
-    // Generate all combinations of top 10 numbers with top 5 stars
-    const combinationsTopNumbers = generateNumberStarCombinations(top10Numbers, top5Stars);
-
-    // Generate all combinations of least 10 numbers with least 4 stars
-    const combinationsLeastNumbers = generateNumberStarCombinations(least10Numbers, least4Stars);
+    // Generate all combinations of 5 numbers and 2 stars from top and least sets
+    const combinationsTopNumbers = generateNumberStarCombinations(top10Numbers, top5Stars, 5, 2);
+    const combinationsLeastNumbers = generateNumberStarCombinations(least10Numbers, least4Stars, 5, 2);
 
     // Display the tables
     displayCombinationsTable('combinationsTopNumbers', combinationsTopNumbers);
     displayCombinationsTable('combinationsLeastNumbers', combinationsLeastNumbers);
 }
 
-// Helper function to generate combinations of numbers and stars
-function generateNumberStarCombinations(numbers, stars) {
+// Helper function to generate combinations of 5 numbers and 2 stars
+function generateNumberStarCombinations(numbers, stars, numberCount, starCount) {
     let combinations = [];
-    numbers.forEach(number => {
-        stars.forEach(star => {
-            const countNumbers = numberCounts[number] || 0;
-            const countStars = starCounts[star] || 0;
-            const percentageNumber = totalDraws > 0 ? ((countNumbers / totalDraws) * 100).toFixed(2) : 0;
-            const percentageStar = totalDraws > 0 ? ((countStars / totalDraws) * 100).toFixed(2) : 0;
+    
+    // Generate all combinations of 5 numbers
+    const numberCombinations = getCombinations(numbers, numberCount);
 
+    // Generate all combinations of 2 stars
+    const starCombinations = getCombinations(stars, starCount);
+
+    // Combine each set of 5 numbers with each set of 2 stars
+    numberCombinations.forEach(numCombo => {
+        starCombinations.forEach(starCombo => {
             combinations.push({
-                number: number,
-                star: star,
-                countNumber: countNumbers,
-                countStar: countStars,
-                percentageNumber: percentageNumber,
-                percentageStar: percentageStar
+                numbers: numCombo,
+                stars: starCombo
             });
         });
     });
+
     return combinations;
+}
+
+// Helper function to get combinations of given length from an array
+function getCombinations(arr, length) {
+    if (length === 1) return arr.map(el => [el]);
+    let combos = [];
+    arr.forEach((el, index) => {
+        const smallerCombos = getCombinations(arr.slice(index + 1), length - 1);
+        smallerCombos.forEach(combo => combos.push([el, ...combo]));
+    });
+    return combos;
 }
 
 // Function to display combinations table
@@ -320,12 +331,8 @@ function displayCombinationsTable(tableId, combinations) {
     combinations.forEach(combo => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${combo.number}</td>
-            <td>★${combo.star}</td>
-            <td>${combo.countNumber}</td>
-            <td>${combo.percentageNumber}%</td>
-            <td>${combo.countStar}</td>
-            <td>${combo.percentageStar}%</td>
+            <td>${combo.numbers.join(', ')}</td>
+            <td>★${combo.stars.join(', ★')}</td>
         `;
         tableBody.appendChild(row);
     });
@@ -333,8 +340,6 @@ function displayCombinationsTable(tableId, combinations) {
 
 // Event listener for generating combinations table
 document.getElementById('generateCombinationsButton').addEventListener('click', generateCombinations);
-
-
 
 
 
