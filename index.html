@@ -6,21 +6,28 @@
     <title>EuroMillions Results</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             background-color: #f0f0f0;
             color: #333;
             text-align: center;
             margin: 0;
             padding: 20px;
+            transition: background-color 0.5s;
         }
         img {
             width: 100%;
             max-width: 300px;
             height: auto;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        img:hover {
+            transform: scale(1.05);
         }
         h1 {
             color: #1e88e5;
             margin-bottom: 10px;
+            animation: fadeIn 1s;
         }
         h4 {
             color: #ff0000;
@@ -38,6 +45,10 @@
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             background-color: white;
+            transition: transform 0.3s;
+        }
+        li:hover {
+            transform: scale(1.02);
         }
         button, input[type="submit"] {
             background-color: #1e88e5;
@@ -46,10 +57,11 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.3s;
         }
         button:hover, input[type="submit"]:hover {
             background-color: #1565c0;
+            transform: scale(1.05);
         }
         #chartContainer {
             width: 80%;
@@ -77,6 +89,17 @@
         table thead {
             background-color: #f2f2f2; /* Optional: Add background to header */
         }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        #surpriseMessage {
+            display: none;
+            font-size: 1.5em;
+            color: #ff5722;
+            margin-top: 20px;
+            animation: fadeIn 1s;
+        }
     </style>
 </head>
 <body>
@@ -98,7 +121,8 @@
     </div>
 
     <h3>Pray to your deity and press the button to pick your lucky number.</h3>
-    <p><strong>Disclaimer:</strong> Walang sisihan</p>
+    <p><strong>Disclaimer:</strong> Walang sisihan</```html
+    </p>
 
     <!-- Button to Generate Random Combination -->
     <button id="generateRandomCombinationButton">I will be the next winner!</button>
@@ -115,7 +139,7 @@
 
     <div id="memo">
         <h2>Enter Your Birthdate for a Lucky Pick.</h2>
-        <p>Kung makadaog swerte, kungdili try again next draw!</p>
+        <p>Kung makadaog swerte, kung dili try again next draw!</p>
     </div>
 
     <form id="generateLuckyPickForm">
@@ -142,9 +166,36 @@
     <!-- Display whether the lucky numbers have already appeared -->
     <p id="resultCheck" style="font-weight: bold; color: red;"></p>
 
+    <div id="surpriseMessage">🎉 Congratulations! You might be the next winner! 🎉</div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>
 
     <h3>"The odds of being struck by lightning in your lifetime are 1 in 3,000" - pero kung dili motaya, dili makadaog</h3>
+
+    <script>
+        // JavaScript to handle button click and surprise message
+        document.getElementById('generateRandomCombinationButton').addEventListener('click', function() {
+            // Simulate generating a random combination
+            const randomNumbers = Array.from({length: 5}, () => Math.floor(Math.random() * 50) + 1);
+            const randomStars = Array.from({length: 2}, () => Math.floor(Math.random() * 12) + 1);
+            document.getElementById('randomCombinationResult').innerHTML = `Your lucky numbers are: ${randomNumbers.join(', ')} and stars: ${randomStars.join(', ')}`;
+            
+            // Show surprise message
+            const surpriseMessage = document.getElementById('surpriseMessage');
+            surpriseMessage.style.display = 'block';
+            setTimeout(() => {
+                surpriseMessage.style.display = 'none';
+            }, 5000); // Hide after 5 seconds
+        });
+
+        // Handle lucky pick form submission
+        document.getElementById('generateLuckyPickForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const birthdate = new Date(document.getElementById('birthdate').value);
+            const luckyNumbers = [birthdate.getDate(), birthdate.getMonth() + 1, Math.floor(Math.random() * 50) + 1];
+            document.getElementById('luckyPick').innerHTML = `Lucky Numbers: ${luckyNumbers.join(', ')}`;
+        });
+    </script>
 </body>
 </html>
