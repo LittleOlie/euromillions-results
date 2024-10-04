@@ -18,7 +18,6 @@
         h1 {
             color: #1e88e5;
         }
-
         h4 {
             color: #ff0000;
         }
@@ -28,7 +27,6 @@
             font-weight: bold;
         }
         li {
-            
             margin: 10px auto;
             padding: 15px;
             width: 80%;
@@ -42,9 +40,13 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         button:hover, input[type="submit"]:hover {
             background-color: #1565c0;
+        }
+        button:active {
+            animation: spin 0.5s ease-in-out; /* Animation on button click */
         }
         #chartContainer {
             width: 80%;
@@ -53,32 +55,30 @@
         #lastDraw, #highProbability, #lowProbability, #luckyPick {
             margin-top: 20px;
         }
-
         #probab {
-          border-top: 1px solid black;
-          border-bottom: 1px solid black;
-          margin-top: 20px;
+            border-top: 1px solid black;
+            border-bottom: 1px solid black;
+            margin-top: 20px;
         }
         #memo {
-             margin-bottom: 20px;
+            margin-bottom: 20px;
         }
-
-
         table {
-        margin: 0 auto; /* Center the table */
-        border-collapse: collapse; /* Merge borders */
+            margin: 0 auto; /* Center the table */
+            border-collapse: collapse; /* Merge borders */
         }
-
         td, th {
-        border: 1px solid black; /* Add border to cells */
-        padding: 8px; /* Add padding to cells */
-        text-align: center; /* Center text inside cells */
+            border: 1px solid black; /* Add border to cells */
+            padding: 8px; /* Add padding to cells */
+            text-align: center; /* Center text inside cells */
         }
-
         table thead {
-        background-color: #f2f2f2; /* Optional: Add background to header */
-}
-
+            background-color: #f2f2f2; /* Optional: Add background to header */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -90,7 +90,7 @@
     <h4>powered by AI (Arteng Indiano) </h4>
     <h3>Last Winning Numbers</h3>
     <ul id="lastDraw"></ul>
-<br>
+    <br>
 
     <div id="probab">
         <h3>Probability based on previous highest and least winning numbers and stars</h3>
@@ -101,76 +101,20 @@
         <p id="leastStars">Least 4 Stars: N/A</p>
     </div>
 
-<br>
-<h3>Pray to your diety and press the button to pick your lucky number. </h3>
-<p>** Disclaimer:  Walang sisihan</p>
-<br>
-<!-- Button to Generate Random Combination -->
-<button id="generateRandomCombinationButton">I will be the next winner!</button>
+    <br>
+    <h3>Pray to your deity and press the button to pick your lucky number.</h3>
+    <p>** Disclaimer: Walang sisihan</p>
+    <br>
+    <!-- Button to Generate Random Combination -->
+    <button id="generateRandomCombinationButton">I will be the next winner!</button>
 
-<!-- Display the Random Combination Result -->
-<div id="randomCombinationResult"></div>
-
-
-
+    <!-- Display the Random Combination Result -->
+    <div id="randomCombinationResult"></div>
 
     <div id="chartContainer">
         <canvas id="numberChart"></canvas>
         <canvas id="starChart" style="margin-top: 20px;"></canvas>
     </div>
 
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <img src="https://raw.githubusercontent.com/LittleOlie/euromillions-results/refs/heads/update/Maneki-neko.jpg" 
+    <img src="https://raw.githubusercontent.com/LittleOlie/euromillions-results/refs/heads/update/Maneki-neko.jpg" 
             width="100%" height="100%" alt="" align="center">
-     <div id="memo">
-        <h2>
-        Enter Your Birthdate for a Lucky Pick. <be>
-        Kung makadaog swerte, kung dili try again next draw! 
-    </h2>
-</div>
-    <form id="generateLuckyPickForm">
-        <label for="birthdate">Birthdate:</label>
-        <input type="date" id="birthdate" name="birthdate" required>
-        <input type="submit" value="Wishiwasheewooo">
-    </form>
-
-    <!-- Lucky pick result -->
-    <p id="luckyPick">Lucky Numbers: N/A </p>
-    <table id="luckyPickTable">
-        <thead>
-            <tr>
-                <th>Number/Star</th>
-                <th>Draw Count</th>
-                <th>Percentage</th>
-            </tr>
-        </thead>
-        <tbody id="luckyPickTableBody"></tbody>
-    </table>
-    
-    <div id="luckyPickResult">Lucky numbers drawn status: N/A </div>
-
-    <!-- Display whether the lucky numbers have already appeared -->
-    <p id="resultCheck" style="font-weight: bold; color: red;"></p>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="app.js"></script>
-<br>
-<br>
-<h3>"The odds of being struck by lightning in your lifetime are 1 in 3,000" - pero kung dili motaya, dili makadaog </h3>
-</body>
-</html>
