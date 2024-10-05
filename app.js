@@ -34,6 +34,7 @@ async function fetchResults() {
 function showLastDraw(data) {
     const lastDraw = data[data.length - 1]; // Last draw is the last item in the array
     const lastDrawList = document.getElementById('lastDraw');
+    lastDrawList.innerHTML = ''; // Clear previous results
 
     const listItem = document.createElement('li');
 
@@ -114,7 +115,98 @@ function calculateProbabilities(data) {
     displayNumberSets(topNumbers, topStars, leastNumbers, leastStars);
 }
 
-// [other functions from the code remain unchanged]
+// Create the chart for numbers or stars
+function createChart(canvasId, label, labels, data, isStarChart = false) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+
+    const colors = labels.map((_, index) => {
+        if (isStarChart) {
+            return index < 2 ? 'rgba(54, 162, 235, 0.5)' : 'rgba(255, 99, 132, 0.5)';
+        } else {
+            return index < 5 ? 'rgba(54, 162, 235, 0.5)' : 'rgba(255, 99, 132, 0.5)';
+        }
+    });
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                backgroundColor: colors,
+                borderColor: colors.map(color => color.replace('0.5', '1')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Percentage'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Numbers/Stars'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Display the top and least frequent numbers and stars
+function displayNumberSets(topNumbers, topStars, leastNumbers, leastStars) {
+    document.getElementById('topNumbers').textContent = `Top 10 Numbers: ${topNumbers.join(', ')}`;
+    document.getElementById('topStars').textContent = `Top 4 Stars: ${topStars.join(', ')}`;
+    document.getElementById('leastNumbers').textContent = `Least 10 Numbers: ${leastNumbers.join(', ')}`;
+    document.getElementById('leastStars').textContent = `Least 4 Stars: ${leastStars.join(', ')}`;
+}
+
+// Generate lucky numbers based on user's birthdate
+function generateLuckyPick(event) {
+    event.preventDefault();
+
+    const birthdate = new Date(document.getElementById('birthdate').value);
+    if (!birthdate.getTime()) {
+        document.getElementById('luckyPick').textContent = 'Please enter a valid birthdate.';
+        return;
+    }
+
+    const day = birthdate.getDate();
+    const month = birthdate.getMonth() + 1;
+    const year = birthdate.getFullYear();
+
+    let luckyNumbers = [day % 50, month % 50, year % 50, (day + month) % 50, (day + year) % 50];
+    let luckyStars = [(day + month) % 12, (month + year) % 12];
+
+    luckyNumbers = luckyNumbers.map(num => num === 0 ? getRandomNumber(1, 50) : num);
+    luckyStars = luckyStars.map(star => star === 0 ? getRandomNumber(1, 12) : star);
+
+    luckyNumbers = ensureNoDuplicates(luckyNumbers, 1, 50);
+    luckyStars = ensureNoDuplicates(luckyStars, 1, 12);
+
+    document.getElementById('luckyPick').textContent = `Lucky Numbers: ${luckyNumbers.join(', ')} | Lucky Stars: ${luckyStars.join(', ')}`;
+}
+
+// Ensure no duplicates in lucky picks
+function ensureNoDuplicates(array, min, max) {
+    let uniqueArray = [...new Set(array)];
+    while (uniqueArray.length < array.length) {
+        uniqueArray.push(getRandomNumber(min, max));
+        uniqueArray = [...new Set(uniqueArray)];
+    }
+    return uniqueArray;
+}
+
+// Get a random number between min and max (inclusive)
+function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 document.addEventListener('DOMContentLoaded', fetchResults);
 document.getElementById('generateLuckyPickForm').addEventListener('submit', generateLuckyPick);
