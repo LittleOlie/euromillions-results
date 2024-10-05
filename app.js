@@ -32,39 +32,66 @@ async function fetchResults() {
     }
 }
 
-// Show the last draw results
+// Helper function to create number or star span
+function createSpanElement(content, isStar = false) {
+    const span = document.createElement('span');
+    span.style.fontSize = '20px';
+    span.innerHTML = content.map(item => {
+        const symbol = isStar ? `★${item}` : item;
+        const backgroundColor = isStar ? 'gold' : 'white';
+        return `<span style="display: inline-block; background-color: ${backgroundColor}; border-radius: 50%; padding: 10px; width: 40px; height: 40px; text-align: center; margin-right: 10px;">${symbol}</span>`;
+    }).join('');
+    return span;
+}
+
+// Modify showLastDraw to use createSpanElement
 function showLastDraw(data) {
     const lastDraw = data[data.length - 1]; // Last draw is the last item in the array
-    const lastDrawList = document.getElementById('lastDraw');
 
+    // Display the draw numbers and stars
+    const lastDrawList = document.getElementById('lastDraw');
     const listItem = document.createElement('li');
 
-    // Create a span element for the numbers with a white circular background
-    const numbersSpan = document.createElement('span');
-    numbersSpan.style.fontSize = '20px';
-    numbersSpan.innerHTML = lastDraw.numbers.map(num => {
-        return `<span style="display: inline-block; background-color: white; border-radius: 50%; padding: 10px; width: 40px; height: 40px; text-align: center; margin-right: 10px;">${num}</span>`;
-    }).join('');
-
-    // Create a span element for the stars with a golden circular background
-    const starsSpan = document.createElement('span');
-    starsSpan.style.fontSize = '20px';
-    starsSpan.innerHTML = lastDraw.stars.map(star => {
-        return `<span style="display: inline-block; background-color: gold; border-radius: 50%; padding: 10px; width: 40px; height: 40px; text-align: center; margin-right: 10px;">★${star}</span>`;
-    }).join('');
-
-    // Set the draw date and prize
+    const numbersSpan = createSpanElement(lastDraw.numbers);
+    const starsSpan = createSpanElement(lastDraw.stars, true);
+    
     const drawInfo = `Draw on ${lastDraw.date}`;
     const prizeInfo = ` | Prize: ${lastDraw.prize || 'Not available'}`;
-
-    // Append all elements to the list item
+    
     listItem.innerHTML = `${drawInfo}: `;
     listItem.appendChild(numbersSpan);
     listItem.appendChild(starsSpan);
     listItem.innerHTML += prizeInfo;
-
-    // Add the list item to the DOM
     lastDrawList.appendChild(listItem);
+
+    // Now create the table for last draw data
+    createLastDrawTable(lastDraw);
+}
+
+// Function to create a table for last draw numbers and stars
+function createLastDrawTable(lastDraw) {
+    const tableBody = document.getElementById('lastDrawTableBody');
+    tableBody.innerHTML = ''; // Clear previous data
+
+    // Process numbers
+    lastDraw.numbers.forEach(number => {
+        const count = numberCounts[number] || 0;
+        const percentage = totalDraws > 0 ? ((count / totalDraws) * 100).toFixed(2) : 0;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${number}</td><td>${count}</td><td>${percentage}%</td>`;
+        tableBody.appendChild(row);
+    });
+
+    // Process stars
+    lastDraw.stars.forEach(star => {
+        const count = starCounts[star] || 0;
+        const percentage = totalDraws > 0 ? ((count / totalDraws) * 100).toFixed(2) : 0;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>★${star}</td><td>${count}</td><td>${percentage}%</td>`;
+        tableBody.appendChild(row);
+    });
 }
 
 // Display draw information (first draw, last draw, and total draws)
@@ -87,23 +114,21 @@ function calculateProbabilities(data) {
     numberCounts = {};
     starCounts = {};
 
+    // Count occurrences of each number and star
+    data.forEach(draw => {
+        draw.numbers.forEach(num => numberCounts[num] = (numberCounts[num] || 0) + 1);
+        draw.stars.forEach(star => starCounts[star] = (starCounts[star] || 0) + 1);
+    });
 
-  // Count occurrences of each number and star
-  data.forEach(draw => {
-    draw.numbers.forEach(num => numberCounts[num] = (numberCounts[num] || 0) + 1);
-    draw.stars.forEach(star => starCounts[star] = (starCounts[star] || 0) + 1);
-});
+    // Sort numbers and stars by frequency
+    const sortedNumbers = Object.entries(numberCounts).sort((a, b) => b[1] - a[1]);
+    const sortedStars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]);
 
-// Sort numbers and stars by frequency
-const sortedNumbers = Object.entries(numberCounts).sort((a, b) => b[1] - a[1]);
-const sortedStars = Object.entries(starCounts).sort((a, b) => b[1] - a[1]);
+    const numberLabels = sortedNumbers.map(item => `${item[0]} (${item[1]} draws)`);
+    const numberFrequencies = sortedNumbers.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
 
-const numberLabels = sortedNumbers.map(item => `${item[0]} (${item[1]} draws)`);
-const numberFrequencies = sortedNumbers.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
-
-const starLabels = sortedStars.map(item => `${item[0]} (${item[1]} draws)`);
-const starFrequencies = sortedStars.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
-
+    const starLabels = sortedStars.map(item => `${item[0]} (${item[1]} draws)`);
+    const starFrequencies = sortedStars.map(item => ((item[1] / totalDraws) * 100).toFixed(2));
 
     // Create charts
     createChart('numberChart', 'Number Frequencies (%)', numberLabels, numberFrequencies, false);
@@ -187,152 +212,23 @@ function generateLuckyPick(event) {
     let luckyNumbers = [day % 50, month % 50, year % 50, (day + month) % 50, (day + year) % 50];
     let luckyStars = [(day + month) % 12, (month + year) % 12];
 
-    luckyNumbers = luckyNumbers.map(num => num === 0 ? getRandomNumber(1, 50) : num);
-    luckyStars = luckyStars.map(star => star === 0 ? getRandomNumber(1, 12) : star);
+    // Ensure no duplicates in the generated lucky numbers and stars
+    luckyNumbers = [...new Set(luckyNumbers)];
+    luckyStars = [...new Set(luckyStars)];
 
-    luckyNumbers = ensureNoDuplicates(luckyNumbers, 1, 50);
-    luckyStars = ensureNoDuplicates(luckyStars, 1, 12);
+    // Display lucky numbers and stars
+    const luckyNumbersSpan = createSpanElement(luckyNumbers);
+    const luckyStarsSpan = createSpanElement(luckyStars, true);
 
-    document.getElementById('luckyPick').textContent = `Lucky Numbers: ${luckyNumbers.join(', ')} | Lucky Stars: ${luckyStars.join(', ')}`;
-
-    // Create a table for lucky numbers
-    createLuckyPickTable(luckyNumbers, luckyStars);
-
-    checkIfLuckySetAppeared(luckyNumbers, luckyStars);
+    const luckyPickDiv = document.getElementById('luckyPick');
+    luckyPickDiv.innerHTML = ''; // Clear previous lucky picks
+    luckyPickDiv.appendChild(luckyNumbersSpan);
+    luckyPickDiv.appendChild(luckyStarsSpan);
 }
 
-// Create a table for lucky pick numbers with draw count and percentage
-function createLuckyPickTable(luckyNumbers, luckyStars) {
-    const tableBody = document.getElementById('luckyPickTableBody');
-    tableBody.innerHTML = ''; // Clear previous data
+// Add event listeners
+document.getElementById('fetchResultsButton').addEventListener('click', fetchResults);
+document.getElementById('generateLuckyPickButton').addEventListener('click', generateLuckyPick);
 
-    luckyNumbers.forEach(number => {
-        const count = numberCounts[number] || 0;
-        const percentage = totalDraws > 0 ? ((count / totalDraws) * 100).toFixed(2) : 0;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${number}</td><td>${count}</td><td>${percentage}%</td>`;
-        tableBody.appendChild(row);
-    });
-
-    luckyStars.forEach(star => {
-        const count = starCounts[star] || 0;
-        const percentage = totalDraws > 0 ? ((count / totalDraws) * 100).toFixed(2) : 0;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>★${star}</td><td>${count}</td><td>${percentage}%</td>`;
-        tableBody.appendChild(row);
-    });
-}
-
-
-// Check if the lucky set appeared in past results
-function checkIfLuckySetAppeared(luckyNumbers, luckyStars) {
-    let matchFound = false;
-
-    pastDrawData.forEach(draw => {
-        const drawNumbers = draw.numbers.sort((a, b) => a - b);
-        const drawStars = draw.stars.sort((a, b) => a - b);
-
-        if (arraysEqual(luckyNumbers.sort((a, b) => a - b), drawNumbers) &&
-            arraysEqual(luckyStars.sort((a, b) => a - b), drawStars)) {
-            matchFound = true;
-        }
-    });
-
-    if (matchFound) {
-        document.getElementById('luckyPickResult').textContent = 'Your lucky numbers have already been drawn in the past! Keep trying!';
-    } else {
-        document.getElementById('luckyPickResult').textContent = 'Your lucky numbers have not been drawn yet! There is hope!';
-    }
-}
-
-// Helper function to check array equality
-function arraysEqual(arr1, arr2) {
-    return arr1.length === arr2.length && arr1.every((value, index) => value === arr2[index]);
-}
-
-// Helper function to get a random number in a range
-function getRandomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-// Helper function to ensure no duplicate numbers or stars
-function ensureNoDuplicates(arr, min, max) {
-    const uniqueArr = [...new Set(arr)];
-    while (uniqueArr.length < arr.length) {
-        uniqueArr.push(getRandomNumber(min, max));
-    }
-    return uniqueArr;
-}
-
-
-
-
-
-// Function to randomly pick 5 numbers and 2 stars from top and least numbers/stars
-function generateRandomCombination() {
-    // Combine top 10 and least 10 numbers
-    const combinedNumbers = [
-        ...Object.entries(numberCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(item => parseInt(item[0])),
-        ...Object.entries(numberCounts).sort((a, b) => a[1] - b[1]).slice(0, 10).map(item => parseInt(item[0]))
-    ];
-
-    // Combine top 4 and least 4 stars
-    const combinedStars = [
-        ...Object.entries(starCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(item => parseInt(item[0])),
-        ...Object.entries(starCounts).sort((a, b) => a[1] - b[1]).slice(0, 4).map(item => parseInt(item[0]))
-    ];
-
-    // Randomly pick 5 numbers
-    const selectedNumbers = getRandomUniqueElements(combinedNumbers, 5);
-
-    // Randomly pick 2 stars
-    const selectedStars = getRandomUniqueElements(combinedStars, 2);
-
-    // Display the result
-    displayRandomCombination(selectedNumbers, selectedStars);
-}
-
-// Helper function to get random unique elements from an array
-function getRandomUniqueElements(arr, count) {
-    const result = [];
-    const usedIndices = new Set();
-
-    while (result.length < count) {
-        const randomIndex = Math.floor(Math.random() * arr.length);
-        if (!usedIndices.has(randomIndex)) {
-            result.push(arr[randomIndex]);
-            usedIndices.add(randomIndex);
-        }
-    }
-
-    return result;
-}
-
-// Function to display the randomly picked combination
-function displayRandomCombination(numbers, stars) {
-    const resultDiv = document.getElementById('randomCombinationResult');
-    
-    resultDiv.innerHTML = `This is your winning number:<br> 
-        Numbers: ${numbers.join(', ')}<br>
-        Stars: ★${stars.join(', ★')}`;
-}
-
-// Event listener for the random combination button
-document.getElementById('generateRandomCombinationButton').addEventListener('click', generateRandomCombination);
-
-
-
-
-
-
-
-
-
-
-// Fetch results on page load
-document.addEventListener('DOMContentLoaded', fetchResults);
-
-// Event listener for generating lucky pick
-document.getElementById('generateLuckyPickForm').addEventListener('submit', generateLuckyPick);
+// Automatically fetch results on page load
+window.onload = fetchResults;
