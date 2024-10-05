@@ -19,8 +19,8 @@ async function fetchResults() {
         // Display first date, last date, and total number of draws
         displayDrawInfo(data);
 
-        // Show the last draw
-        showLastDraw(data);
+        // Show the last draw in table format
+        showLastDrawInTable(data);
 
         // Calculate highest and least probability numbers and stars
         calculateProbabilities(data);
@@ -30,40 +30,30 @@ async function fetchResults() {
     }
 }
 
-// Show the last draw results
-function showLastDraw(data) {
+// Show the last draw results in table format
+function showLastDrawInTable(data) {
     const lastDraw = data[data.length - 1]; // Last draw is the last item in the array
-    const lastDrawList = document.getElementById('lastDraw');
-    lastDrawList.innerHTML = ''; // Clear previous results
+    const lastDrawTableBody = document.getElementById('lastDrawTableBody');
+    lastDrawTableBody.innerHTML = ''; // Clear previous results
 
-    const listItem = document.createElement('li');
+    const row = document.createElement('tr');
 
-    // Create a span element for the numbers with a white circular background
-    const numbersSpan = document.createElement('span');
-    numbersSpan.style.fontSize = '20px';
-    numbersSpan.innerHTML = lastDraw.numbers.map(num => {
-        return `<span style="display: inline-block; background-color: white; border-radius: 50%; padding: 10px; width: 40px; height: 40px; text-align: center; margin-right: 10px;">${num}</span>`;
-    }).join('');
+    // Numbers in separate columns
+    lastDraw.numbers.forEach(num => {
+        const cell = document.createElement('td');
+        cell.textContent = num;
+        row.appendChild(cell);
+    });
 
-    // Create a span element for the stars with a golden circular background
-    const starsSpan = document.createElement('span');
-    starsSpan.style.fontSize = '20px';
-    starsSpan.innerHTML = lastDraw.stars.map(star => {
-        return `<span style="display: inline-block; background-color: gold; border-radius: 50%; padding: 10px; width: 40px; height: 40px; text-align: center; margin-right: 10px;">★${star}</span>`;
-    }).join('');
+    // Stars in separate columns
+    lastDraw.stars.forEach(star => {
+        const cell = document.createElement('td');
+        cell.textContent = `★${star}`;
+        row.appendChild(cell);
+    });
 
-    // Set the draw date and prize
-    const drawInfo = `Draw on ${lastDraw.date}`;
-    const prizeInfo = ` | Prize: ${lastDraw.prize || 'Not available'}`;
-
-    // Append all elements to the list item
-    listItem.innerHTML = `${drawInfo}: `;
-    listItem.appendChild(numbersSpan);
-    listItem.appendChild(starsSpan);
-    listItem.innerHTML += prizeInfo;
-
-    // Add the list item to the DOM
-    lastDrawList.appendChild(listItem);
+    // Add the row to the table
+    lastDrawTableBody.appendChild(row);
 }
 
 // Display draw information (first draw, last draw, and total draws)
@@ -167,13 +157,13 @@ function displayNumberSets(topNumbers, topStars, leastNumbers, leastStars) {
     document.getElementById('leastStars').textContent = `Least 4 Stars: ${leastStars.join(', ')}`;
 }
 
-// Generate lucky numbers based on user's birthdate
+// Generate lucky numbers based on user's birthdate and display in a table
 function generateLuckyPick(event) {
     event.preventDefault();
 
     const birthdate = new Date(document.getElementById('birthdate').value);
     if (!birthdate.getTime()) {
-        document.getElementById('luckyPick').textContent = 'Please enter a valid birthdate.';
+        document.getElementById('luckyPickResult').textContent = 'Please enter a valid birthdate.';
         return;
     }
 
@@ -190,7 +180,32 @@ function generateLuckyPick(event) {
     luckyNumbers = ensureNoDuplicates(luckyNumbers, 1, 50);
     luckyStars = ensureNoDuplicates(luckyStars, 1, 12);
 
-    document.getElementById('luckyPick').textContent = `Lucky Numbers: ${luckyNumbers.join(', ')} | Lucky Stars: ${luckyStars.join(', ')}`;
+    displayLuckyPick(luckyNumbers, luckyStars);
+}
+
+// Display lucky pick in a table
+function displayLuckyPick(luckyNumbers, luckyStars) {
+    const luckyPickTable = document.getElementById('luckyPickTable');
+    luckyPickTable.innerHTML = ''; // Clear previous picks
+
+    const row = document.createElement('tr');
+
+    // Add lucky numbers
+    luckyNumbers.forEach(num => {
+        const cell = document.createElement('td');
+        cell.textContent = num;
+        row.appendChild(cell);
+    });
+
+    // Add lucky stars
+    luckyStars.forEach(star => {
+        const cell = document.createElement('td');
+        cell.textContent = `★${star}`;
+        row.appendChild(cell);
+    });
+
+    // Append the row to the table
+    luckyPickTable.appendChild(row);
 }
 
 // Ensure no duplicates in lucky picks
@@ -208,5 +223,21 @@ function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// Check result based on the lucky pick and last draw
+function checkResult() {
+    const luckyPickTable = document.getElementById('luckyPickTable');
+    const resultCheck = document.getElementById('resultCheck');
+    const lastDraw = pastDrawData[pastDrawData.length - 1];
+
+    const luckyPickNumbers = Array.from(luckyPickTable.querySelectorAll('td')).slice(0, 5).map(td => parseInt(td.textContent));
+    const luckyPickStars = Array.from(luckyPickTable.querySelectorAll('td')).slice(5).map(td => parseInt(td.textContent.replace('★', '')));
+
+    const matchingNumbers = luckyPickNumbers.filter(num => lastDraw.numbers.includes(num)).length;
+    const matchingStars = luckyPickStars.filter(star => lastDraw.stars.includes(star)).length;
+
+    resultCheck.textContent = `Matching Numbers: ${matchingNumbers}, Matching Stars: ${matchingStars}`;
+}
+
 document.addEventListener('DOMContentLoaded', fetchResults);
 document.getElementById('generateLuckyPickForm').addEventListener('submit', generateLuckyPick);
+document.getElementById('checkResultButton').addEventListener('click', checkResult);
