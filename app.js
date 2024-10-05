@@ -32,12 +32,70 @@ async function fetchResults() {
     }
 }
 
-// Show the last draw results
+// Modify showLastDraw to call createLastDrawTable
 function showLastDraw(data) {
     const lastDraw = data[data.length - 1]; // Last draw is the last item in the array
-    const lastDrawList = document.getElementById('lastDraw');
 
+    // Display the draw numbers and stars
+    const lastDrawList = document.getElementById('lastDraw');
     const listItem = document.createElement('li');
+    const numbersSpan = document.createElement('span');
+    const starsSpan = document.createElement('span');
+    
+    numbersSpan.style.fontSize = '20px';
+    numbersSpan.innerHTML = lastDraw.numbers.map(num => {
+        return `<span style="display: inline-block; background-color: white; border-radius: 50%; padding: 10px; width: 40px; height: 40px; text-align: center; margin-right: 10px;">${num}</span>`;
+    }).join('');
+
+    starsSpan.style.fontSize = '20px';
+    starsSpan.innerHTML = lastDraw.stars.map(star => {
+        return `<span style="display: inline-block; background-color: gold; border-radius: 50%; padding: 10px; width: 40px; height: 40px; text-align: center; margin-right: 10px;">★${star}</span>`;
+    }).join('');
+
+    const drawInfo = `Draw on ${lastDraw.date}`;
+    const prizeInfo = ` | Prize: ${lastDraw.prize || 'Not available'}`;
+    
+    listItem.innerHTML = `${drawInfo}: `;
+    listItem.appendChild(numbersSpan);
+    listItem.appendChild(starsSpan);
+    listItem.innerHTML += prizeInfo;
+    lastDrawList.appendChild(listItem);
+
+    // Now create the table for last draw data
+    createLastDrawTable(lastDraw);
+}
+
+// Function to create a table for last draw numbers and stars
+function createLastDrawTable(lastDraw) {
+    const tableBody = document.getElementById('lastDrawTableBody');
+    tableBody.innerHTML = ''; // Clear previous data
+
+    // Process numbers
+    lastDraw.numbers.forEach(number => {
+        const count = numberCounts[number] || 0;
+        const percentage = totalDraws > 0 ? ((count / totalDraws) * 100).toFixed(2) : 0;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${number}</td><td>${count}</td><td>${percentage}%</td>`;
+        tableBody.appendChild(row);
+    });
+
+    // Process stars
+    lastDraw.stars.forEach(star => {
+        const count = starCounts[star] || 0;
+        const percentage = totalDraws > 0 ? ((count / totalDraws) * 100).toFixed(2) : 0;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>★${star}</td><td>${count}</td><td>${percentage}%</td>`;
+        tableBody.appendChild(row);
+    });
+}
+
+
+
+
+
+
 
     // Create a span element for the numbers with a white circular background
     const numbersSpan = document.createElement('span');
